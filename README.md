@@ -53,6 +53,21 @@ Example usage:
 
 Your supersecret file contains sensitive info. Here is a sample supersecret.go file:
 
+```
+package config
+
+var PROXIES_DOWNLOAD_URL string = "https://example.com/" // returns txt file with proxies in format: IP:port:username:password
+
+var PROXY_LOCAL_URL string = "127.0.0.1:9453"
+
+var SMTP_SERVER string = "mail.example.com"
+var SMTP_PORT int = 587
+var SMTP_EMAIL string = "mail@example.com"
+var SMTP_PASS string = "example-pass"
+var GPT_AUTH_TOKEN string = "sk-gpt_auth_token"
+
+```
+
 ## 4. Run main.go
 
 Simply run main.go using `go run main.go`
