@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Scrape</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+        <link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-1.13.8/b-2.4.2/b-html5-2.4.2/b-print-2.4.2/r-2.5.0/sp-2.2.0/datatables.min.css" rel="stylesheet">
+ 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-1.13.8/b-2.4.2/b-html5-2.4.2/b-print-2.4.2/r-2.5.0/sp-2.2.0/datatables.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('#scrape-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copy', 'csv', 'excel', 'pdf', 'print'
+                    ],
+                    "order": [[ 0, "desc" ]],
+                    "pageLength": 25,
+                    "responsive": true
+                });
+            });
+        </script>
+        <style>
+            * { font-family: Ubuntu, sans-serif !important }
+            body { margin: 0px !important; padding: 0px !important; background-color: #f6f6f6 !important; }
+        </style> 
+    </head>
+    <body>
+        {{ with .Scrape }}
+        <div class="container-fluid">
+            <h1 class="text-center mt-5 mb-0">Scrape Job: {{ .Name }} </h1>
+            <h3 class="text-center mt-3 mb-0"> URL: <span class="fw-light">{{ .Url }}</span> </h3>
+            <h4 class="text-center mt-3 mb-4">Active: <span class="fw-light">{{ .Active }}</span></h4>
+            <div class="w-100 text-center mb-5"><a href="/scrape" class="btn btn-primary text-center mt-0">Go Back</a></div>
+
+            <div class="card my-2">
+                <h5 class="card-header">Edit Scrape Task</h5>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <input type="hidden" name="scrape-id" value="{{ .Id }}">
+                        <label for="scrape-name">Scrape Name: </label>
+                        <input type="text" id="scrape-name" class="form-control mb-2" name="scrape-name" placeholder="Name..." value="{{ .Name }}">
+                        <label for="scrape-url">Scrape URL: </label> 
+                        <input type="text" id="scrape-url" class="form-control mb-2" name="scrape-url" placeholder="Website..." value="{{ .Url }}" >
+                        <label for="scrape-selector">CSS Selector: </label> 
+                        <input type="text" id="scrape-selector" class="form-control mb-2" name="scrape-selector" placeholder="Selector..." value="{{ .CssSelector }}">
+                        <label for="scrape-condition">Alert Condition: </label> 
+                        <input type="text" id="scrape-condition" class="form-control mb-2" name="scrape-condition" placeholder="Condition..." value="{{ .Condition }}">
+                        <label for="scrape-contact-email">Alert Email Address: </label> 
+                        <input type="text" id="scrape-contact-email" class="form-control mb-2" name="scrape-contact-email" placeholder="Email Address..." value="{{ .ContactEmail }}">
+                        <label for="scrape-screenshot">Take Screenshot:</label>
+                        <select class="form-control" id="scrape-screenshot" name="scrape-screenshot">
+                            <option value="0" {{ if eq .Screenshot false }}selected{{ end }}>Disabled</option>
+                            <option value="1" {{ if eq .Screenshot true }}selected{{ end }}>Enabled</option>
+                        </select>
+                        <label for="scrape-get-outer-html">Get Outer HTML:</label>
+                        <select class="form-control" id="scrape-get-outer-html" name="scrape-get-outer-html">
+                            <option value="0" {{ if eq .GetOuterHTML false }}selected{{ end }}>Disabled</option>
+                            <option value="1" {{ if eq .GetOuterHTML true }}selected{{ end }}>Enabled</option>
+                        </select>
+                        <label for="scrape-active">Active:</label>
+                        <select class="form-control" id="scrape-active" name="scrape-active">
+                            <option value="0" {{ if eq .Active false }}selected{{ end }}>No</option>
+                            <option value="1" {{ if eq .Active true }}selected{{ end }}>Yes</option>
+                        </select>
+                        <label for="scrape-interval">Interval:</label>
+                        <select class="form-control" id="scrape-interval" name="scrape-interval">
+                            <option value="0" {{ if eq .Interval 0 }}selected{{ end }}>Run Once</option>
+                            <option value="5" {{ if eq .Interval 5 }}selected{{ end }}>Every 5 Minutes</option>
+                            <option value="10" {{ if eq .Interval 10 }}selected{{ end }}>Every 10 Minutes</option>
+                            <option value="15" {{ if eq .Interval 15 }}selected{{ end }}>Every 15 Minutes</option>
+                            <option value="30" {{ if eq .Interval 30 }}selected{{ end }}>Every 30 Minutes</option>
+                            <option value="60" {{ if eq .Interval 60 }}selected{{ end }}>Every Hour</option>
+                            <option value="120" {{ if eq .Interval 120 }}selected{{ end }}>Every 2 Hours</option>
+                            <option value="240" {{ if eq .Interval 240 }}selected{{ end }}>Every 4 Hours</option>
+                            <option value="360" {{ if eq .Interval 360 }}selected{{ end }}>Every 6 Hours</option>
+                            <option value="480" {{ if eq .Interval 480 }}selected{{ end }}>Every 8 Hours</option>
+                            <option value="720" {{ if eq .Interval 720 }}selected{{ end }}>Every 12 Hours</option>
+                            <option value="1440" {{ if eq .Interval 1440 }}selected{{ end }}>Every Day</option>
+                            <option value="10080" {{ if eq .Interval 10080 }}selected{{ end }}>Every Week</option>
+                        </select>
+                        <input type="submit" class="btn btn-primary my-2" name="run-now" value="Run Now">
+                        <input type="submit" class="btn btn-primary my-2" name="edit" value="Edit">
+                        {{ if .Active }}
+                        <input type="submit" class="btn btn-warning my-2" name="deactivate" value="Deactivate">
+                        {{ else }}
+                        <input type="submit" class="btn btn-success my-2" name="activate" value="Activate">
+                        {{ end }}
+                        <input type="submit" class="btn btn-danger my-2" name="delete" value="Delete">
+                    </form> 
+                </div>
+            </div>
+
+            <div class="card my-3">
+                <h5 class="card-header">Existing Link Scrapes</h5>
+                <div class="card-body p-4">
+                    <table id="scrape-table" class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Found</th>
+                                <th>Result</th>
+                                <th>Goal Reached</th>
+                                <th>Alerted</th>
+                                <th>Screenshot</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{ range .Singles }} 
+                            <tr>
+                                <td>{{ .DateAdded.Format "01.02.06 (03:04:05 PM)" }}</td>
+                                <td>{{ .DateCompleted.Format "01.02.06 (03:04:05 PM)" }}</td>
+                                <td>{{ .Found }}</td>
+                                <td>{{ if .Result }}{{ .Result }}{{ else }}-{{ end }}</td>
+                                <td>{{ .ShouldAlert }}</td>
+                                <td>{{ .Alerted }}</td>
+                                <td>{{ if .HasScreenshot }} {{ if .DateCompleted }}<a href="/scrape/{{ .SiteScrapeId }}/{{ .Id }}/screenshot" target="_blank" class="btn btn-primary">View</a> {{ else }}<a class="btn btn-primary" disabled>View</a>{{ end }}{{ else }}-{{ end }}</td>
+                            </tr>
+                            {{ end }}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>   
+        {{ end }}
+    </body>
+    
+</html>

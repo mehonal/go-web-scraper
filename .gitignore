@@ -1,0 +1,12 @@
+supersecret.go
+proxies.txt
+mubeng_proxies.txt
+database.sqlite3
+database.sqlite3-journal
+media
+*.sum
+*.so
+*.dll
+*.exe
+*.test
+.env
